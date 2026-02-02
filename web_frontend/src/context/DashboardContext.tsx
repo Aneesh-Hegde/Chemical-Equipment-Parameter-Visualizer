@@ -7,7 +7,9 @@ interface DashboardContextType {
   currentData: EquipmentData[];
   setCurrentData: (data: EquipmentData[]) => void;
   uploadHistory: UploadHistory[];
+  setUploadHistory: (history: UploadHistory[]) => void;
   addToHistory: (history: UploadHistory) => void;
+  removeFromHistory: (historyId: string) => void;
   loadFromHistory: (historyId: string) => void;
   stats: DashboardStats;
   setStats: (stats: DashboardStats) => void;
@@ -28,7 +30,7 @@ export const useDashboard = () => {
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [currentData, setCurrentDataState] = useState<EquipmentData[]>([]);
-  const [uploadHistory, setUploadHistory] = useState<UploadHistory[]>([]);
+  const [uploadHistory, setUploadHistoryState] = useState<UploadHistory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStatsState] = useState<DashboardStats>({
     total_count: 0,
@@ -48,17 +50,28 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     setStatsState(newStats);
   }, []);
 
+  const setUploadHistory = useCallback((history: UploadHistory[]) => {
+    setUploadHistoryState(history);
+  }, []);
+
   const addToHistory = useCallback((history: UploadHistory) => {
-    setUploadHistory(prev => {
+    setUploadHistoryState(prev => {
       const newHistory = [history, ...prev].slice(0, 5);
       return newHistory;
     });
+  }, []);
+
+  const removeFromHistory = useCallback((historyId: string) => {
+    setUploadHistoryState(prev => prev.filter(h => h.id !== historyId));
   }, []);
 
   const loadFromHistory = useCallback((historyId: string) => {
     const historyItem = uploadHistory.find(h => h.id === historyId);
     if (historyItem) {
       setCurrentDataState(historyItem.data);
+      if (historyItem.summary) {
+        setStatsState(historyItem.summary);
+      }
     }
   }, [uploadHistory]);
 
@@ -70,7 +83,9 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         currentData,
         setCurrentData,
         uploadHistory,
+        setUploadHistory,
         addToHistory,
+        removeFromHistory,
         loadFromHistory,
         stats,
         setStats,
