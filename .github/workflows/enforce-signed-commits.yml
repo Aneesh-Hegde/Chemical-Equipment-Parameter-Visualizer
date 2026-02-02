@@ -1,0 +1,59 @@
+name: Enforce Signed Commits
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-signatures:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify Commit Signatures
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUM: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Checking commits in PR #$PR_NUM for valid signatures..."
+          
+          # Fetch unsigned commits from the PR
+          UNSIGNED_COMMITS=$(gh pr commits $PR_NUM --repo $REPO \
+            --json sha,commit \
+            --jq '.[] | select(.commit.verification.verified == false) | .sha')
+
+          if [ -n "$UNSIGNED_COMMITS" ]; then
+            echo "::error::❌ Security Check Failed: Unsigned commits detected."
+            
+            echo "----------------------------------------------------------------"
+            echo "🚫 BLOCKED: The following commits are not signed:"
+            echo "$UNSIGNED_COMMITS"
+            echo "----------------------------------------------------------------"
+            echo ""
+            echo "💡 HOW TO FIX THIS (For Developers):"
+            echo ""
+            echo "1. Ensure you have a GPG or SSH key set up in your GitHub settings."
+            echo "   (Settings -> SSH and GPG keys)"
+            echo ""
+            echo "2. Configure Git to use your key locally:"
+            echo "   git config --global user.signingkey <YOUR_KEY_ID>"
+            echo "   git config --global commit.gpgsign true"
+            echo ""
+            echo "3. Sign the existing commits (Rewrite History):"
+            echo "   Run this command in your terminal:"
+            echo "   git rebase -i HEAD~n -x 'git commit --amend --no-edit -S'"
+            echo "   (Replace 'n' with the number of commits back you need to go)"
+            echo ""
+            echo "4. Push the fixed commits:"
+            echo "   git push --force-with-lease"
+            echo "----------------------------------------------------------------"
+            
+            exit 1
+          else
+            echo "✅ All commits are verified signed."
+          fi
