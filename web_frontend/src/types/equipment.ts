@@ -18,12 +18,13 @@ export interface UploadHistory {
 }
 
 export interface DashboardStats {
-  totalEquipment: number;
-  avgFlowrate: number;
-  avgPressure: number;
-  avgTemperature: number;
-  activeCount: number;
-  inactiveCount: number;
+  total_count: number;
+  averages: {
+    Flowrate: number;
+    Pressure: number;
+    Temperature: number;
+  };
+  type_distribution: Record<string, number>;
 }
 
 export interface User {

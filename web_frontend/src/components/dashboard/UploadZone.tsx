@@ -9,7 +9,7 @@ export const UploadZone = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadState, setUploadState] = useState<'idle' | 'success' | 'error'>('idle');
   const [fileName, setFileName] = useState<string>('');
-  const { setCurrentData, addToHistory, setIsLoading } = useDashboard();
+  const { setCurrentData, setStats, addToHistory, setIsLoading } = useDashboard();
   const { parseCSV, generateSampleData } = useCSVParser();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -25,10 +25,11 @@ export const UploadZone = () => {
   const processFile = async (file: File) => {
     setIsLoading(true);
     setFileName(file.name);
-    
+
     try {
-      const data = await parseCSV(file);
+      const { data, stats } = await parseCSV(file);
       setCurrentData(data);
+      setStats(stats);
       addToHistory({
         id: `history-${Date.now()}`,
         fileName: file.name,
@@ -49,7 +50,7 @@ export const UploadZone = () => {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const file = e.dataTransfer.files[0];
     if (file && file.type === 'text/csv') {
       processFile(file);
@@ -66,14 +67,15 @@ export const UploadZone = () => {
   const handleLoadSample = () => {
     setIsLoading(true);
     setTimeout(() => {
-      const sampleData = generateSampleData();
-      setCurrentData(sampleData);
+      const { data, stats } = generateSampleData();
+      setCurrentData(data);
+      setStats(stats);
       addToHistory({
         id: `history-${Date.now()}`,
         fileName: 'sample-equipment-data.csv',
         uploadDate: new Date().toISOString(),
-        recordCount: sampleData.length,
-        data: sampleData,
+        recordCount: data.length,
+        data,
       });
       setUploadState('success');
       setFileName('sample-equipment-data.csv');
@@ -91,15 +93,15 @@ export const UploadZone = () => {
     >
       {/* Breathing ring animation */}
       <div className="absolute inset-0 rounded-xl bg-primary/5 breathing-ring pointer-events-none" />
-      
+
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
           relative z-10 p-8 rounded-xl border-2 border-dashed transition-all duration-300
-          ${isDragging 
-            ? 'border-primary bg-primary/5 scale-[1.02]' 
+          ${isDragging
+            ? 'border-primary bg-primary/5 scale-[1.02]'
             : 'border-border bg-card hover:border-primary/50 hover:bg-primary/[0.02]'
           }
         `}
@@ -130,8 +132,8 @@ export const UploadZone = () => {
               <motion.div
                 key="upload"
                 initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ 
-                  scale: isDragging ? 1.1 : 1, 
+                animate={{
+                  scale: isDragging ? 1.1 : 1,
                   opacity: 1,
                   y: isDragging ? -5 : 0,
                 }}
@@ -181,7 +183,7 @@ export const UploadZone = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Drag and drop a CSV file, or click to browse
                 </p>
-                
+
                 <div className="flex gap-3 justify-center">
                   <label>
                     <input
@@ -198,7 +200,7 @@ export const UploadZone = () => {
                       <span>Browse Files</span>
                     </Button>
                   </label>
-                  
+
                   <Button
                     variant="secondary"
                     onClick={handleLoadSample}
