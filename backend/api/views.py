@@ -10,7 +10,6 @@ from .utils import generate_pdf_report
 class DatasetViewSet(viewsets.ModelViewSet):
     queryset = UploadedDataset.objects.all().order_by('-uploaded_at')
     serializer_class = UploadedDatasetSerializer
-    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
