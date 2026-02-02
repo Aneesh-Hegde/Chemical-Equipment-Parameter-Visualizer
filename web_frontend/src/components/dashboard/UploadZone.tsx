@@ -4,17 +4,13 @@ import { Upload, FileSpreadsheet, CheckCircle, AlertCircle } from 'lucide-react'
 import { useDashboard } from '@/context/DashboardContext';
 import { useCSVParser } from '@/hooks/useCSVParser';
 import { Button } from '@/components/ui/button';
-import { uploadDataset, fetchAndParseCSV } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
 
 export const UploadZone = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadState, setUploadState] = useState<'idle' | 'success' | 'error'>('idle');
   const [fileName, setFileName] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>('');
   const { setCurrentData, setStats, addToHistory, setIsLoading } = useDashboard();
   const { parseCSV, generateSampleData } = useCSVParser();
-  const { toast } = useToast();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -29,47 +25,22 @@ export const UploadZone = () => {
   const processFile = async (file: File) => {
     setIsLoading(true);
     setFileName(file.name);
-    setErrorMessage('');
 
     try {
-      // Upload to backend API
-      const response = await uploadDataset(file);
-
-      // Get stats from API response
-      if (response.summary) {
-        setStats(response.summary);
-      }
-
-      // Parse CSV locally for table display
-      const { data } = await parseCSV(file);
+      const { data, stats } = await parseCSV(file);
       setCurrentData(data);
-
-      // Add to history with backend ID
+      setStats(stats);
       addToHistory({
-        id: `history-${response.id}`,
-        datasetId: response.id,
+        id: `history-${Date.now()}`,
         fileName: file.name,
-        uploadDate: response.uploaded_at,
-        recordCount: response.summary?.total_count || data.length,
+        uploadDate: new Date().toISOString(),
+        recordCount: data.length,
         data,
-        summary: response.summary || undefined,
       });
-
       setUploadState('success');
-      toast({
-        title: 'Upload Successful',
-        description: `${file.name} has been uploaded and processed.`,
-      });
       setTimeout(() => setUploadState('idle'), 3000);
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      setErrorMessage(error.message || 'Failed to upload file');
+    } catch (error) {
       setUploadState('error');
-      toast({
-        title: 'Upload Failed',
-        description: error.message || 'Please check your CSV file format',
-        variant: 'destructive',
-      });
       setTimeout(() => setUploadState('idle'), 3000);
     } finally {
       setIsLoading(false);
@@ -81,7 +52,7 @@ export const UploadZone = () => {
     setIsDragging(false);
 
     const file = e.dataTransfer.files[0];
-    if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
+    if (file && file.type === 'text/csv') {
       processFile(file);
     }
   }, []);
@@ -105,7 +76,6 @@ export const UploadZone = () => {
         uploadDate: new Date().toISOString(),
         recordCount: data.length,
         data,
-        summary: stats,
       });
       setUploadState('success');
       setFileName('sample-equipment-data.csv');
@@ -113,7 +83,6 @@ export const UploadZone = () => {
       setIsLoading(false);
     }, 800);
   };
-
 
   return (
     <motion.div

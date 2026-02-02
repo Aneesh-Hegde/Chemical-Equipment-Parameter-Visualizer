@@ -11,12 +11,10 @@ export interface EquipmentData {
 
 export interface UploadHistory {
   id: string;
-  datasetId?: number; // Backend dataset ID for API operations
   fileName: string;
   uploadDate: string;
   recordCount: number;
   data: EquipmentData[];
-  summary?: DashboardStats;
 }
 
 export interface DashboardStats {
