@@ -40,29 +40,15 @@ export const Login = ({
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      // Store credentials for API authentication (Basic Auth)
-      localStorage.setItem('authUsername', formData.email);
-      localStorage.setItem('authPassword', formData.password);
-
-      // Simulate API call / authentication delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setUser({
-        id: 'user-1',
-        email: formData.email,
-        name: formData.name || formData.email.split('@')[0]
-      });
-
-      onLogin();
-    } catch (error) {
-      console.error('Login error:', error);
-      // Clear stored credentials on error
-      localStorage.removeItem('authUsername');
-      localStorage.removeItem('authPassword');
-    } finally {
-      setIsLoading(false);
-    }
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setUser({
+      id: 'user-1',
+      email: formData.email,
+      name: formData.name || formData.email.split('@')[0]
+    });
+    setIsLoading(false);
+    onLogin();
   };
   return <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
     {/* Animated gradient background */}
@@ -132,10 +118,10 @@ export const Login = ({
           </motion.div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-foreground">Username</Label>
+            <Label htmlFor="email" className="text-foreground">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input id="email" type="text" placeholder="admin" value={formData.email} onChange={e => setFormData(prev => ({
+              <Input id="email" type="email" placeholder="you@example.com" value={formData.email} onChange={e => setFormData(prev => ({
                 ...prev,
                 email: e.target.value
               }))} className="pl-10" required />

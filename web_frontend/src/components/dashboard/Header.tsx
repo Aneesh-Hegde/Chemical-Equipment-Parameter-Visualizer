@@ -15,21 +15,13 @@ export const Header = ({ onLogout }: HeaderProps) => {
   const { user, currentData } = useDashboard();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleLogout = () => {
-    // Clear stored auth credentials
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('authUsername');
-    localStorage.removeItem('authPassword');
-    onLogout();
-  };
-
   const handleGeneratePDF = async () => {
     if (currentData.length === 0) {
       return;
     }
 
     setIsGenerating(true);
-
+    
     try {
       const dashboardElement = document.getElementById('dashboard-content');
       if (!dashboardElement) return;
@@ -94,19 +86,19 @@ export const Header = ({ onLogout }: HeaderProps) => {
 
         <div className="flex items-center gap-3 pl-4 border-l border-border">
           <ThemeToggle />
-
+          
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
               <User className="w-4 h-4 text-secondary-foreground" />
             </div>
             <span className="text-sm font-medium text-foreground">{user?.name || 'User'}</span>
           </div>
-
+          
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleLogout}
+              onClick={onLogout}
               className="text-muted-foreground hover:text-foreground"
             >
               <LogOut className="w-4 h-4" />
