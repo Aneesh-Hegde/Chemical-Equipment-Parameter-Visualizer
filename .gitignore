@@ -1,0 +1,40 @@
+### --- Python & Django --- ###
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+db.sqlite3
+media/
+static_root/
+requirements.txt.bak
+
+### --- PyQt5 / Desktop --- ###
+# If you use Qt Designer to generate .ui files, ignore the converted .py files 
+# only if you prefer to generate them on the fly. Usually, we keep them.
+# *.py (only if generated from .ui)
+
+### --- Node / React (Web) --- ###
+web_frontend/node_modules/
+web_frontend/build/
+web_frontend/.env.local
+web_frontend/.env.development.local
+web_frontend/.env.test.local
+web_frontend/.env.production.local
+web_frontend/npm-debug.log*
+web_frontend/yarn-debug.log*
+web_frontend/yarn-error.log*
+
+### --- OS Specific (Arch/Linux) --- ###
+.DS_Store
+.directory
+*.swp
+*~
+.vscode/
+.idea/
+
+### --- Project Specific --- ###
+# Ignore the actual uploaded CSVs if they end up in a local 'uploads' folder
+# but keep the sample file for the recruiter
+backend/uploads/
+!sample_equipment_data.csv
