@@ -10,6 +10,7 @@ interface DashboardContextType {
   addToHistory: (history: UploadHistory) => void;
   loadFromHistory: (historyId: string) => void;
   stats: DashboardStats;
+  setStats: (stats: DashboardStats) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }
@@ -24,45 +25,27 @@ export const useDashboard = () => {
   return context;
 };
 
-const calculateStats = (data: EquipmentData[]): DashboardStats => {
-  if (data.length === 0) {
-    return {
-      totalEquipment: 0,
-      avgFlowrate: 0,
-      avgPressure: 0,
-      avgTemperature: 0,
-      activeCount: 0,
-      inactiveCount: 0,
-    };
-  }
-
-  const totalEquipment = data.length;
-  const avgFlowrate = data.reduce((sum, item) => sum + item.flowrate, 0) / totalEquipment;
-  const avgPressure = data.reduce((sum, item) => sum + item.pressure, 0) / totalEquipment;
-  const avgTemperature = data.reduce((sum, item) => sum + item.temperature, 0) / totalEquipment;
-  const activeCount = data.filter(item => item.status === 'Active').length;
-  const inactiveCount = data.filter(item => item.status !== 'Active').length;
-
-  return {
-    totalEquipment,
-    avgFlowrate: Math.round(avgFlowrate * 100) / 100,
-    avgPressure: Math.round(avgPressure * 100) / 100,
-    avgTemperature: Math.round(avgTemperature * 100) / 100,
-    activeCount,
-    inactiveCount,
-  };
-};
-
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [currentData, setCurrentDataState] = useState<EquipmentData[]>([]);
   const [uploadHistory, setUploadHistory] = useState<UploadHistory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const stats = calculateStats(currentData);
+  const [stats, setStatsState] = useState<DashboardStats>({
+    total_count: 0,
+    averages: {
+      Flowrate: 0,
+      Pressure: 0,
+      Temperature: 0,
+    },
+    type_distribution: {},
+  });
 
   const setCurrentData = useCallback((data: EquipmentData[]) => {
     setCurrentDataState(data);
+  }, []);
+
+  const setStats = useCallback((newStats: DashboardStats) => {
+    setStatsState(newStats);
   }, []);
 
   const addToHistory = useCallback((history: UploadHistory) => {
@@ -90,6 +73,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         addToHistory,
         loadFromHistory,
         stats,
+        setStats,
         isLoading,
         setIsLoading,
       }}
