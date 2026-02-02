@@ -175,7 +175,7 @@ export const HistorySidebar = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="history-item p-3 rounded-lg bg-card hover:bg-sidebar-accent border border-transparent hover:border-sidebar-border transition-all duration-200 group"
+                className="history-item p-3 rounded-lg bg-white dark:bg-zinc-800 hover:bg-primary/5 dark:hover:bg-primary/10 border border-border/50 hover:border-primary/30 transition-all duration-200 group shadow-sm hover:shadow-md"
               >
                 <button
                   onClick={() => handleLoadItem(item)}
@@ -204,11 +204,11 @@ export const HistorySidebar = () => {
                 </button>
 
                 {/* Action buttons */}
-                <div className="flex gap-1 mt-2 pt-2 border-t border-border/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-2 mt-2 pt-2 border-t border-border/30">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-1 h-7 text-xs"
+                    className="flex-1 h-7 text-xs text-primary hover:text-primary hover:bg-primary/10"
                     onClick={(e) => handleDownloadPdf(e, item.datasetId)}
                     disabled={downloadingId === item.id || !item.datasetId}
                   >
@@ -222,7 +222,7 @@ export const HistorySidebar = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-1 h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="flex-1 h-7 text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
                     onClick={(e) => handleDelete(e, item.id, item.datasetId)}
                     disabled={deletingId === item.id}
                   >
